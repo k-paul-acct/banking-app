@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigmaBank.Api", "SigmaBank.Api\SigmaBank.Api.csproj", "{9CD30450-DD22-4CB2-9720-87714CE8D43F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{44992035-85BE-4DFB-9FCB-F41D56157E05}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BF10B731-34C4-4F43-8EF0-72B05E677AE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,8 @@ Global
 		{9CD30450-DD22-4CB2-9720-87714CE8D43F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CD30450-DD22-4CB2-9720-87714CE8D43F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CD30450-DD22-4CB2-9720-87714CE8D43F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9CD30450-DD22-4CB2-9720-87714CE8D43F} = {44992035-85BE-4DFB-9FCB-F41D56157E05}
 	EndGlobalSection
 EndGlobal
