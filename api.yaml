@@ -1,0 +1,827 @@
+openapi: 3.0.3
+info:
+  title: Banking App API
+  version: 1.0.0
+tags:
+  - name: auth
+    description: Everything about authentication and authorization
+  - name: user
+    description: Operations about user profile and info
+  - name: account
+    description: Operations with user's bank account
+  - name: credit
+    description: Operations about credits
+  - name: cashback
+    description: Cashback overview
+  - name: common
+    description: Generally available endpoint
+  - name: admin
+    description: Only admins allowed endpoints
+paths:
+  /api/regions:
+    get:
+      tags:
+        - common
+      summary: All available regions
+      description: ''
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Region'
+    post:
+      tags:
+        - admin
+      summary: Add region
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Region'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict occured
+  /api/regions/{code}:
+    get:
+      tags:
+        - common
+      summary: Get region by code
+      description: ''
+      parameters:
+        - in: path
+          name: code
+          description: Region code
+          required: true
+          schema:
+            type: number
+            example: 45
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+        '404':
+          description: Not found
+    delete:
+      tags:
+        - admin
+      summary: Delete region by code
+      description: ''
+      parameters:
+        - in: path
+          name: code
+          description: Region code
+          required: true
+          schema:
+            type: number
+            example: 45
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+  /api/pay-credit:
+    post:
+      tags:
+        - admin
+      summary: Pay month amount for credit
+      description: ''
+      requestBody:
+        $ref: '#/components/requestBodies/PayCredit'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad request
+  /auth/signup:
+    post:
+      tags:
+        - auth
+      summary: Register user
+      description: ''
+      requestBody:
+        $ref: '#/components/requestBodies/SignUp'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Validation error
+  /auth/signin:
+    post:
+      tags:
+        - auth
+      summary: Logs user into the system
+      description: ''
+      requestBody:
+        $ref: '#/components/requestBodies/SignIn'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid username/password supplied
+  /auth/signout:
+    post:
+      tags:
+        - auth
+      summary: Logs out current logged in user session
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: Successful operation
+  /user/{id}:
+    get:
+      tags:
+        - user
+      summary: Get user by id
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+    put:
+      tags:
+        - user
+      summary: Update user data
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateUser'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid data supplied
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      parameters:
+        - name: id
+          in: path
+          description: User ID to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid id supplied
+        '404':
+          description: User not found
+  /user/{id}/photo:
+    get:
+      tags:
+        - user
+      summary: Get user's profile photo
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+    put:
+      tags:
+        - user
+      summary: Update or set user's profile photo
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad request. Photo is not set
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /user/{id}/credit:
+    get:
+      tags:
+        - credit
+      summary: Get info about current user credit status
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                description: If user has no credit, currentCredit is null
+                properties:
+                  currentCredit:
+                    $ref: '#/components/schemas/Credit'
+        '401':
+          description: Unauthorized
+    post:
+      tags:
+        - credit
+      summary: Try to make a credit application
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credit:
+                    $ref: '#/components/schemas/Credit'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict of values occured
+  /user/{id}/credit/available:
+    get:
+      tags:
+        - credit
+      summary: Get amount available for credit application
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+        - name: months
+          in: path
+          description: Months
+          required: true
+          schema:
+            type: number
+            example: 6
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  creditAvailable:
+                    type: boolean
+                  amount:
+                    type: number
+                    example: 12345.67
+                  percent:
+                    type: number
+                    example: 12
+          description: Successful operation
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /cashback/types:
+    get:
+      tags:
+        - cashback
+      description: ''
+      responses:
+        '200':
+          description: Successful operation
+  /account/{id}:
+    get:
+      tags:
+        - account
+      summary: Info about user's bank account
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Invalid id supplied
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+  /account/{id}/transactions:
+    get:
+      tags:
+        - account
+      summary: Account transactions info
+      description: Get user's transactions within chosen date interval.
+        If 'date-from' equals 'date-to', then transactions since the start of
+        last month returned. Values are sorted by timestamp in descending
+        order
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: date-from
+          in: path
+          description: Date start filter
+          required: true
+          schema:
+            type: string
+            description: ISO 8601 format
+            format: date
+        - name: date-to
+          in: path
+          description: Date end filter
+          required: true
+          schema:
+            type: string
+            description: ISO 8601 format
+            format: date
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dateFrom:
+                    type: string
+                    format: date
+                  dateTo:
+                    type: string
+                    format: date
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid data supplied
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+  /account/{id}/transfer-to:
+    post:
+      tags:
+        - account
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        $ref: '#/components/requestBodies/Transfer'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDebit'
+        '400':
+          description: Invalid data supplied or cannot transfer
+        '401':
+          description: Unauthorized
+        '404':
+          description: Recipient not found
+components:
+  schemas:
+    Region:
+      type: object
+      properties:
+        code:
+          type: number
+          description: Region code from Russian Classification on Objects of
+            Administrative Division
+          example: 45
+        name:
+          type: string
+          description: Region name
+          example: Москва
+    Sender:
+      type: object
+      properties:
+        firstName:
+          type: string
+        secondName:
+          type: string
+        patronymic:
+          type: string
+    Recipient:
+      type: object
+      properties:
+        firstName:
+          type: string
+        secondName:
+          type: string
+        patronymic:
+          type: string
+        phone:
+          type: string
+          description: Phome number in format '+7AAABBBCCDD'
+        cardNumber:
+          type: string
+          description: Card number
+          example: 1234 1234 1234 1234
+    Shop:
+      type: object
+      properties:
+        name:
+          type: string
+        mccCode:
+          type: number
+          example: 5812
+        mccName:
+          type: string
+          example: Eating Places, Restaurants
+        addressUri:
+          type: string
+          description: Shop addresses URI in maps app
+        cashbackPercent:
+          type: number
+          example: 2
+    TransactionCredit:
+      type: object
+      description: Bank account top-up info. If type is 'atm', then sender
+        is null
+      properties:
+        amount:
+          type: number
+          example: 123.45
+        type:
+          type: string
+          enum:
+            - atm
+            - transfer
+        sender:
+          $ref: '#/components/schemas/Sender'
+        timestamp:
+          type: string
+          format: datetime
+    TransactionDebit:
+      type: object
+      description: Bank account debit info. If type is 'transfer', then shop
+        is null. If type is 'payment', recipient is null. If it is 'credit',
+        both fields are null
+      properties:
+        amount:
+          type: number
+          example: -123.45
+        cashback:
+          type: number
+          description: Cashback amount for this purchase. If there is no
+            cashback, value is zero
+          example: 1.23
+        type:
+          type: string
+          enum:
+            - transfer
+            - credit
+            - payment
+        shop:
+          $ref: '#/components/schemas/Shop'
+        recipient:
+          $ref: '#/components/schemas/Recipient'
+        timestamp:
+          type: string
+          format: datetime
+    Transaction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - debit
+            - credit
+        meta:
+          oneOf:
+            - $ref: '#/components/schemas/TransactionCredit'
+            - $ref: '#/components/schemas/TransactionDebit'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+          example: John
+        secondName:
+          type: string
+          example: James
+        patronymic:
+          type: string
+        phone:
+          type: string
+          description: Phone number in format '+7AAABBBCCDD'
+          example: '+71112223344'
+        email:
+          type: string
+          format: email
+        passportNumber:
+          type: string
+        role:
+          type: string
+        dateOfBirth:
+          type: string
+          example: '2022-04-06'
+          description: ISO 8601 format
+          format: date
+        sex:
+          type: string
+          enum:
+            - 'male'
+            - 'female'
+        region:
+          $ref: '#/components/schemas/Region'
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID
+          example: 'ea415563-34a6-4958-a0ce-0afe57cc81f8'
+          format: uuid
+        balance:
+          type: number
+          description: User bank account balance
+          example: 123.456
+        cashback:
+          type: number
+          description: Cashback for the last month
+          example: 1.23
+        cardNumber:
+          type: string
+          description: User bank card number
+          example: 1234 1234 1234 1234
+    Credit:
+      description: Credit's approved field is not null only when status is
+        active
+      type: object
+      properties:
+        amount:
+          type: number
+          example: 123.12
+        returned:
+          type: number
+          example: 123.12
+        months:
+          type: number
+          example: 12
+        monthsPassed:
+          type: number
+          example: 6
+        monthPayment:
+          type: number
+          example: 12.34
+        percent:
+          type: number
+          example: 8.9
+        status:
+          type: string
+          enum:
+            - active
+            - closed
+            - pending
+            - declined
+        created:
+          type: string
+          format: datetime
+        approved:
+          type: string
+          format: datetime
+  requestBodies:
+    Transfer:
+      description: Transfer model. User can transfer by recipient's phone
+        number or card number, not both
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                example: 123.12
+              recipientPhone:
+                type: string
+                description: Phone number in format '+7AAABBBCCDD'
+                example: '+71231234567'
+              recipientCardNumber:
+                type: string
+                description: User bank card number
+                example: 1234 1234 1234 1234
+    SignIn:
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              phone:
+                type: string
+                description: Phone number in format '+7AAABBBCCDD'
+              password:
+                type: string
+                format: password
+    SignUp:
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              firstName:
+                type: string
+              secondName:
+                type: string
+              patronymic:
+                type: string
+              dateOfBirth:
+                type: string
+                format: date
+              sex:
+                type: string
+                enum:
+                  - 'male'
+                  - 'female'
+              phone:
+                type: string
+                description: Phone number in format '+7AAABBBCCDD'
+              passportNumber:
+                type: string
+              password:
+                type: string
+              passwordConfirmation:
+                type: string
+              region:
+                type: string
+                description: Region enum value from another endpoint
+    CreateUser:
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              login:
+                type: string
+                example: theUser
+              firstName:
+                type: string
+                example: John
+              secondName:
+                type: string
+                example: James
+              email:
+                type: string
+                example: john@email.com
+              password:
+                type: string
+                example: '12345'
+              phone:
+                type: string
+                example: '12345'
+              region:
+                type: string
+                example: RU-MOS
+              dateOfBirth:
+                type: string
+    PayCredit:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accountId:
+                type: string
+                format: uuid
+    UpdateUser:
+      description: If any value should not to be updated, it must be null
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              regionCode:
+                type: number
+                example: 45
+              email:
+                type: string
+                format: email
+              phone:
+                type: string
+                example: '+71112223344'
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-api-key
+      in: header
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sign
